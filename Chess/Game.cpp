@@ -25,7 +25,7 @@ void play() {
 				turn = BLACK;
 			}
 			else
-				std::cout << "Wrong move!";
+				cout << "Wrong move!" << endl;
 		}
 		else {
 			if (board.move(Point(xFrom, yFrom), Point(xTo, yTo), BLACK)) {
@@ -33,7 +33,7 @@ void play() {
 				turn = WHITE;
 			}
 			else
-				std::cout << "Wrong move";
+				cout << "Wrong move" << endl;
 		}
 
 	}
@@ -41,9 +41,8 @@ void play() {
 }
 
 int main() {
+
 	play();
-
-
 
 	return 0;
 }

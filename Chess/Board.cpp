@@ -1,6 +1,16 @@
 #include "Board.h"
 #include <iostream>
 
+inline int abs(int x) {
+	return (x >= 0 ? x : -x);
+}
+
+
+inline void Board::swapAndDeleteSecond(ChessPiece*& to, ChessPiece*& from) {
+	 to = from;
+	 from = nullptr;
+}
+
 
 Board::Board() {
 	for (int i = 0; i < BOARD_LENGTH; i++) {
@@ -50,29 +60,10 @@ bool Board::isCellEmpty() {
 	return false;
 }
 
-
-void Board::swap(ChessPiece* a, ChessPiece* b) {
-	ChessPiece* temp = a;
-	a = b;
-	b = temp;
-}
-
-
-// reversing the board so that 
-// we can operate with black and white pieces identically
-void Board::reverseBoard() {
-	for (int i = 0, k = 7; i < 4; i++, k--) {
-		for (int j = 0; j < 8; j++) {
-			swap(board[i][j], board[k][j]);
-		}
-	}
-}
-
-
 // Color == Turn
 bool Board::move(Point from, Point to, Turn turn) {
 
-	// 3 basic checks for validity of move
+	// 4 basic checks for validity of move:
 	if (from.x > 7 || from.x < 0 ||
 		from.y > 7 || from.y < 0)
 		return false;
@@ -80,11 +71,11 @@ bool Board::move(Point from, Point to, Turn turn) {
 	if (from.x == to.x && from.y == to.y)
 		return false;
 
-	if (board[from.x][from.y]->getColor() != turn)
+	if (board[from.x][from.y] == nullptr)
 		return false;
 
-	if (turn == BLACK)
-		reverseBoard();
+	if (board[from.x][from.y]->getColor() != turn)
+		return false;
 
 	bool isMoveSuccessful = false;
 
@@ -112,50 +103,52 @@ bool Board::move(Point from, Point to, Turn turn) {
 		break;
 	}
 
-	if (turn == BLACK)
-		reverseBoard();
-
 	return isMoveSuccessful;
 }
 
-
+// almost correctly, @todo 2-square move
 bool Board::movePawn(Point from, Point to) {
 	// trying to move pawn 1 square forward
-	if (from.y == to.y && (from.x - to.x == 1)) {
+	if (from.y == to.y && (abs(from.x - to.x) == 1)) {
 		if (board[to.x][to.y] != nullptr) {
 			return false;
 		}
 		else {
-			board[to.x][to.y] = board[from.x][from.y];
-			board[from.x][from.y] = nullptr;
+			swapAndDeleteSecond(board[to.x][to.y], board[from.x][from.y]);
 			return true;
 		}
 	}
 	// trying to move pawn 2 squares forward
-	else if (from.y == to.y && (to.x - from.x == 2)) {
-		if (from.x == 6 && board[to.x][to.y] == nullptr && board[to.x + 1][to.y] == nullptr) {
-			swap(board[to.x][to.y], board[from.x][from.y]);
-			board[from.x][from.y] = nullptr;
-			return true;
+	else if (from.y == to.y && (abs(to.x - from.x) == 2)) {
+		if (board[from.x][from.y]->getColor() == WHITE) {
+			if ((from.x == 6) && board[to.x][to.y] == nullptr && board[to.x + 1][to.y] == nullptr) {
+				swapAndDeleteSecond(board[to.x][to.y], board[from.x][from.y]);
+				return true;
+			}
 		}
-		else return false;
+		// if piece is BLACK
+		else {
+			if ((from.x == 1) && board[to.x][to.y] == nullptr && board[to.x - 1][to.y] == nullptr) {
+				swapAndDeleteSecond(board[to.x][to.y], board[from.x][from.y]);
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	// trying to take the right piece
-	else if ((from.x - to.x == 1) && (to.y - from.y == 1)) {
-		if (board[to.x][to.y] != nullptr && board[to.x][to.y]->getColor() != board[from.x][from.y]->getColor()) {
-			swap(board[to.x][to.y], board[from.x][from.y]);
-			board[from.x][from.y] = nullptr;
+	else if ((abs(from.x - to.x) == 1) && (abs(to.y - from.y) == 1)) {
+		if (board[to.x][to.y] != nullptr) {
+			swapAndDeleteSecond(board[to.x][to.y], board[from.x][from.y]);
 			return true;
 		}
 		else return false;
 	}
 
 	// trying to take the left piece
-	else if ((from.x - to.x == 1) && (from.y - to.y == 1)) {
-		if (board[to.x][to.y] != nullptr && board[to.x][to.y]->getColor() != board[from.x][from.y]->getColor()) {
-			swap(board[to.x][to.y], board[from.x][from.y]);
-			board[from.x][from.y] = nullptr;
+	else if ((abs(from.x - to.x) == 1) && (abs(from.y - to.y) == 1)) {
+		if (board[to.x][to.y] != nullptr) {
+			swapAndDeleteSecond(board[to.x][to.y], board[from.x][from.y]);
 			return true;
 		}
 		else return false;
@@ -164,36 +157,164 @@ bool Board::movePawn(Point from, Point to) {
 	return false;
 }
 
-
+// knight works correctly!
 bool Board::moveKnight(Point from, Point to) {
 	int fromX = from.x;
 	int fromY = from.y;
 	int toX = to.x;
 	int toY = to.y;
+
+	// 2 checks for 8 possible squares
+	if (abs(fromX - toX) == 2 && abs(fromY - toY) == 1 ||
+		abs(fromX - toX) == 1 && abs(fromY - toY) == 2) 
+	{
+		swapAndDeleteSecond(board[toX][toY], board[fromX][fromY]);
+		return true;
+	}
+
 	return false;
 }
 
 
+// can move
 bool Board::moveBishop(Point from, Point to) {
+	
+	bool canMove = canMoveDiagonally(from, to);
+	if (canMove) {
+		swapAndDeleteSecond(board[to.x][to.y], board[from.x][from.y]);
+		return true;
+	}
+
+
 	return false;
 }
 
-
-bool Board::moveKing(Point from, Point to) {
-	return false;
-}
-
-
-bool Board::moveQueen(Point from, Point to) {
-	return false;
-}
-
-
+// works
 bool Board::moveRook(Point from, Point to) {
+
+	bool canMove = canMoveInLine(from, to);
+	if (canMove) {
+		swapAndDeleteSecond(board[to.x][to.y], board[from.x][from.y]);
+		return true;
+	}
+	
+
 	return false;
 }
 
-void Board::display() {
+// @todo add castling
+bool Board::moveKing(Point from, Point to) {
+	for (int i = from.x - 1; i < from.x + 1; i++) {
+		for (int j = from.y - 1; j < from.y + 1; j++) {
+			if (to.x == i && to.y == j) {
+				swapAndDeleteSecond(board[to.x][to.y], board[from.x][from.y]);
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+// we just call moveRook & moveBishop
+// to move our queen vertically, horizontally or diagonally
+bool Board::moveQueen(Point from, Point to) {
+	if (from.x == to.x && from.y != to.y ||
+		from.x != to.x && from.y == to.y) {
+		moveRook(from, to);
+	}
+	else if (abs(from.x - to.x) == abs(from.y - to.y))
+		moveBishop(from, to);
+
+	return false;
+}
+
+bool Board::canMoveDiagonally(Point from, Point to) {
+	// check if an attempt to move is  
+	// on diagonal line
+	if (abs(from.x - to.x) != abs(from.y - to.y))
+		return false;
+
+	// first case, left top branch
+	if (from.x > to.x && from.y > to.y) {
+		for (int i = from.x - 1, j = from.y - 1; i > to.x, j > to.y; i--, j--) {
+			if (board[i][j] != nullptr)
+				return false;
+		}
+		return true;
+	}
+	// second case, top right branch
+	else if (from.x > to.x && from.y < to.y) {
+		for (int i = from.x - 1, j = from.y + 1; i > to.x, j < to.y; i--, j++) {
+			if (board[i][j] != nullptr)
+				return false;
+		}
+		return true;
+	}
+	// third case, bottom left branch
+	else if (from.x < to.x && from.y > to.y) {
+		for (int i = from.x + 1, j = from.y - 1; i < to.x, j > to.y; i++, j--) {
+			if (board[i][j] != nullptr)
+				return false;
+		}
+		return true;
+	}
+	// bottom right branch
+	else if (from.x < to.x && from.y < to.y) {
+		for (int i = from.x + 1, j = from.y + 1; i < to.x, j < to.y; i++, j++) {
+			if (board[i][j] != nullptr)
+				return false;
+		}
+		return true;
+	}
+
+	return false;
+}
+
+bool Board::canMoveInLine(Point from, Point to) {
+	// check if an attempt is really to move on line
+	if (!(from.x == to.x && from.y != to.y ||
+		from.x != to.x && from.y == to.y))
+		return false;
+
+	// top vertical branch
+	if (from.x > to.x && from.y == to.y) {
+		for (int i = from.x - 1; i > to.x; i--) {
+			if (board[i][from.y] != nullptr)
+				return false;
+		}
+		return true;
+	}
+	// left horizontal branch
+	else if (from.x == to.x && from.y > to.y) {
+		for (int i = from.y - 1; i > to.y; i--) {
+			if (board[from.x][i] != nullptr)
+				return false;
+		}
+		return true;
+	}
+	// right horizontal branch
+	else if (from.x == to.x && from.y < to.y) {
+		for (int i = from.y + 1; i < to.y; i++) {
+			if (board[from.x][i] != nullptr)
+				return false;
+		}
+		return true;
+	}
+	// bottom vertical branch
+	else if (from.x < to.x && from.y == to.y) {
+		for (int i = from.x + 1; i < to.x; i++) {
+			if (board[i][from.y] != nullptr)
+				return false;
+		}
+		return true;
+	}
+
+	return false;
+}
+
+
+void Board::display() const {
 	using namespace std;
 	cout << "   y: 0  1  2  3  4  5  6  7 " << endl << "x:" << endl;
 	for (int i = 0; i < 8; i++)
