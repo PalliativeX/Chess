@@ -1,2 +1,4 @@
 ﻿  Board.cpp
+c:\users\vladimir\source\repos\chess\chess\board.cpp(410): warning C4715: 'Board::getWhiteKingPosition': not all control paths return a value
+c:\users\vladimir\source\repos\chess\chess\board.cpp(420): warning C4715: 'Board::getBlackKingPosition': not all control paths return a value
   Chess.vcxproj -> C:\Users\Vladimir\source\repos\Chess\Debug\Chess.exe

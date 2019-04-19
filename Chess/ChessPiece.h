@@ -1,5 +1,5 @@
 enum PieceType {
-	PAWN,
+	PAWN, 
 	KNIGHT,
 	BISHOP,
 	ROOK,
@@ -22,7 +22,6 @@ struct Point {
 
 class ChessPiece {
 private:
-	int value;
 	PieceType type;
 	Color color;
 public:
@@ -30,13 +29,10 @@ public:
 		return color;
 	}
 
-	int getValue() {
-		return value;
-	}
 	PieceType getType() {
 		return type;
 	}
-	ChessPiece(int v, PieceType t, Color c) :
-		value(v), type(t), color(c) { }
+	ChessPiece(PieceType t, Color c) :
+		       type(t), color(c) { }
 	~ChessPiece() {}
 };

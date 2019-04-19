@@ -1,6 +1,7 @@
 #include "Board.h"
 #include <iostream>
 
+// main game loop
 void play() {
 	Board board;
 
@@ -18,9 +19,12 @@ void play() {
 		cout << "Choose where to move: " << endl;
 		cin >> xTo >> yTo;
 
+		Point from(xFrom, yFrom);
+		Point to(xTo, yTo);
+
 		if (turn == WHITE) {
 			// if a move is successful let BLACK move, else iterate through while() once again
-			if (board.move(Point(xFrom, yFrom), Point(xTo, yTo), WHITE)) {
+			if (board.move(from, to, WHITE)) {
 				board.display();
 				turn = BLACK;
 			}
@@ -28,7 +32,7 @@ void play() {
 				cout << "Wrong move!" << endl;
 		}
 		else {
-			if (board.move(Point(xFrom, yFrom), Point(xTo, yTo), BLACK)) {
+			if (board.move(from, to, BLACK)) {
 				board.display();
 				turn = WHITE;
 			}
