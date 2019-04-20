@@ -26,6 +26,9 @@ void play() {
 			// if a move is successful let BLACK move, else iterate through while() once again
 			if (board.move(from, to, WHITE)) {
 				board.display();
+				if (board.isBlackKingAttacked) {
+					std::cout << "Black king is under attack!" << std::endl;
+				}
 				turn = BLACK;
 			}
 			else
@@ -33,7 +36,10 @@ void play() {
 		}
 		else {
 			if (board.move(from, to, BLACK)) {
-				board.display();
+				board.display(); 
+				if (board.isWhiteKingAttacked) {
+					std::cout << "White king is under attack!" << std::endl;
+				}
 				turn = WHITE;
 			}
 			else

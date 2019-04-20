@@ -8,7 +8,9 @@ class Board {
 private:
 	ChessPiece * board[BOARD_LENGTH][BOARD_LENGTH];
 
-	// separate move methods for each chess piece
+	// separate move methods for each chess piece, 
+	// in each method we also check whether enemy king is under attack
+	// if yes, we set isWhite(Black)KingAttacked to true
 	bool moveKnight(Point& from, Point& to);
 	void attemptToTransformPawn(const Point& to);
 	bool movePawn(Point& from, Point& to);
@@ -17,8 +19,6 @@ private:
 	bool moveQueen(Point& from, Point& to);
 	bool moveBishop(Point& from, Point& to);
 
-	// @todo probably
-	bool isCellEmpty();
 
 	// we move our piece to a chosen square
 	void swapAndDeleteSecond(ChessPiece*& to, ChessPiece*& from);
@@ -39,4 +39,11 @@ public:
 	Board();
 	bool move(Point& from, Point& to, Turn turn);
 	void display() const;
+
+	bool isWhiteKingAttacked = false;
+	bool isBlackKingAttacked = false;
+
+	// @todo add saving and loading game, helps in tests
+	void saveGame();
+	void loadGame();
 };

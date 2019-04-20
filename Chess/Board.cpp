@@ -56,10 +56,6 @@ Board::Board() {
 	board[7][4] = new ChessPiece(KING, WHITE);
 }
 
-// @todo
-bool Board::isCellEmpty() {
-	return false;
-}
 
 // Color == Turn
 bool Board::move(Point& from, Point& to, Turn turn) {
@@ -121,9 +117,10 @@ void Board::attemptToTransformPawn(const Point& to) {
 			}
 		}
 	}
+
 }
 
-// almost correctly, @todo 2-square move
+
 bool Board::movePawn(Point& from, Point& to) {
 	// trying to move pawn 1 square forward
 	if (from.y == to.y && (abs(from.x - to.x) == 1)) {
@@ -157,13 +154,29 @@ bool Board::movePawn(Point& from, Point& to) {
 		return false;
 	}
 
+	else if (canPawnTake(from, to)) {
+		swapAndDeleteSecond(board[to.x][to.y], board[from.x][from.y]);
+
+		attemptToTransformPawn(to);
+
+		// we check whether an enemy king is under attack
+		Color currentPieceColor = board[to.x][to.y]->getColor();
+		if (canPawnTake(to, (currentPieceColor == WHITE ? getBlackKingPosition() : getWhiteKingPosition()))) {
+			currentPieceColor == WHITE ? isBlackKingAttacked = true : isWhiteKingAttacked = true;
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+
+// @todo
+bool Board::canPawnTake(const Point& from, const Point& to) const {
 	// trying to take the right piece
-	else if ((abs(from.x - to.x) == 1) && (abs(to.y - from.y) == 1)) {
+	if ((abs(from.x - to.x) == 1) && (abs(to.y - from.y) == 1)) {
 		if (board[to.x][to.y] != nullptr) {
-			swapAndDeleteSecond(board[to.x][to.y], board[from.x][from.y]);
-
-			attemptToTransformPawn(to);
-
 			return true;
 		}
 
@@ -173,10 +186,6 @@ bool Board::movePawn(Point& from, Point& to) {
 	// trying to take the left piece
 	else if ((abs(from.x - to.x) == 1) && (abs(from.y - to.y) == 1)) {
 		if (board[to.x][to.y] != nullptr) {
-			swapAndDeleteSecond(board[to.x][to.y], board[from.x][from.y]);
-
-			attemptToTransformPawn(to);
-
 			return true;
 		}
 
@@ -188,9 +197,16 @@ bool Board::movePawn(Point& from, Point& to) {
 
 
 bool Board::moveKnight(Point& from, Point& to) {
-	// 2 checks for 8 possible squares
+
 	if (canMoveKnight(from, to)) {
 		swapAndDeleteSecond(board[to.x][to.y], board[from.x][from.y]);
+
+		// here we check if an opposite player's king is attacked
+		Color currentPieceColor = board[to.x][to.y]->getColor();
+		if (canMoveKnight(to, (currentPieceColor == WHITE ? getBlackKingPosition() : getWhiteKingPosition()))) {
+			currentPieceColor == WHITE ? isBlackKingAttacked = true : isWhiteKingAttacked = true;
+		}
+
 		return true;
 	}
 
@@ -198,12 +214,17 @@ bool Board::moveKnight(Point& from, Point& to) {
 }
 
 
-// can move
 bool Board::moveBishop(Point& from, Point& to) {
 
 	bool canMove = canMoveDiagonally(from, to);
 	if (canMove) {
 		swapAndDeleteSecond(board[to.x][to.y], board[from.x][from.y]);
+
+		Color currentPieceColor = board[to.x][to.y]->getColor();
+		if (canMoveDiagonally(to, (currentPieceColor == WHITE ? getBlackKingPosition() : getWhiteKingPosition()))) {
+			currentPieceColor == WHITE ? isBlackKingAttacked = true : isWhiteKingAttacked = true;
+		}
+
 		return true;
 	}
 
@@ -211,12 +232,18 @@ bool Board::moveBishop(Point& from, Point& to) {
 	return false;
 }
 
-// works
+
 bool Board::moveRook(Point& from, Point& to) {
 
 	bool canMove = canMoveInLine(from, to);
 	if (canMove) {
 		swapAndDeleteSecond(board[to.x][to.y], board[from.x][from.y]);
+
+		Color currentPieceColor = board[to.x][to.y]->getColor();
+		if (canMoveInLine(to, (currentPieceColor == WHITE ? getBlackKingPosition() : getWhiteKingPosition()))) {
+			currentPieceColor == WHITE ? isBlackKingAttacked = true : isWhiteKingAttacked = true;
+		}
+
 		return true;
 	}
 
@@ -350,8 +377,10 @@ bool Board::canMoveInLine(const Point& from, const Point& to) const {
 bool Board::canMoveKnight(const Point& from, const Point& to) const {
 	// 2 checks for 8 possible squares
 	if (abs(from.x - to.x) == 2 && abs(from.y - to.y) == 1 ||
-		abs(from.x - to.x) == 1 && abs(from.y - to.y) == 2)
+		abs(from.x - to.x) == 1 && abs(from.y - to.y) == 2) 
+	{
 		return true;
+	}
 
 	return false;
 }
@@ -407,6 +436,8 @@ const Point Board::getWhiteKingPosition() const {
 				return Point(i, j);
 		}
 	}
+
+	return Point(-1, -1);
 }
 
 const Point Board::getBlackKingPosition() const {
@@ -417,6 +448,8 @@ const Point Board::getBlackKingPosition() const {
 				return Point(i, j);
 		}
 	}
+
+	return Point(-1, -1);
 }
 
 
