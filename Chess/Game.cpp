@@ -1,9 +1,14 @@
 #include "Board.h"
 #include <iostream>
 
+
+Board newGame() {
+	return Board();
+}
+
 // main game loop
 void play() {
-	Board board;
+	Board board = newGame();
 
 	board.display();
 
@@ -27,7 +32,11 @@ void play() {
 			if (board.move(from, to, WHITE)) {
 				board.display();
 				if (board.isBlackKingAttacked) {
-					std::cout << "Black king is under attack!" << std::endl;
+					if (board.isBlackKingCheckmated) {
+						cout << "The black lost, your king is checkmated!" << endl;
+						return;
+					}
+					cout << "Black king is under attack!" << std::endl;
 				}
 				turn = BLACK;
 			}
@@ -38,6 +47,10 @@ void play() {
 			if (board.move(from, to, BLACK)) {
 				board.display(); 
 				if (board.isWhiteKingAttacked) {
+					if (board.isBlackKingCheckmated) {
+						cout << "The white lost, your king is checkmated!" << endl;
+						return;
+					}
 					std::cout << "White king is under attack!" << std::endl;
 				}
 				turn = WHITE;
@@ -49,6 +62,7 @@ void play() {
 	}
 
 }
+
 
 int main() {
 

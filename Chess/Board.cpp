@@ -13,6 +13,12 @@ inline void Board::swapAndDeleteSecond(ChessPiece*& to, ChessPiece*& from) {
 }
 
 
+// we check if a square of board equals to nullptr
+bool isSquareEmpty(const ChessPiece* p) {
+	return (p != nullptr);
+}
+
+
 Board::Board() {
 	for (int i = 0; i < BOARD_LENGTH; i++) {
 		for (int j = 0; j < BOARD_LENGTH; j++) {
@@ -386,13 +392,49 @@ bool Board::canMoveKnight(const Point& from, const Point& to) const {
 }
 
 
-// @todo - we must check whether a piece is protected (by a queen, e.g.), also if there is a king nearby
-// or a square is attacked by some piece
+bool Board::canEnemyPiecesReachSquare(const Point& to, const Color currentColor) const {
+	for (int i = 0; i < BOARD_LENGTH; i++) {
+		for (int j = 0; j < BOARD_LENGTH; j++) {
+			// we check if any enemy piece can move to this square
+			if (!isSquareEmpty(board[i][j]) && board[i][j]->getColor() != currentColor) {
+				switch (board[i][j]->getType()) {
+				case PAWN :
+					// add for pawn
+					break;
+				case KNIGHT:
+					if (canMoveKnight(Point(i, j), to))
+						return true;
+					break;
+				case QUEEN:
+					if (canMoveDiagonally(Point(i, j), to))
+						return true;
+					if (canMoveInLine(Point(i, j), to))
+						return true;
+					break;
+				case ROOK:
+					if (canMoveInLine(Point(i, j), to))
+						return true;
+					break;
+				case BISHOP:
+					if (canMoveDiagonally(Point(i, j), to))
+						return true;
+					break;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+// @todo - we must check if there is a king nearby
 bool Board::canMoveKing1Square(const Point& from, const Point& to) const {
 	for (int i = from.x - 1; i < from.x + 1; i++) {
 		for (int j = from.y - 1; j < from.y + 1; j++) {
 			if (to.x == i && to.y == j) {
-				// check if this piece is protected there
+				if (canEnemyPiecesReachSquare(Point(i, j), board[from.x][from.y]->getColor())) {
+					return false;
+				}
 				return true;
 			}
 		}
@@ -423,6 +465,15 @@ bool Board::attemptKingCastle(const Point& from, const Point& to, const bool has
 	}
 
 	return false;
+}
+
+
+// @todo, we must check:
+// 1 - whether king can escape, 2 - whether a piece which attacks it can be killed, 3 - whether the line can be protected
+// 1 - can check with abs() or with for loop (too ineffective)
+bool Board::isKingCheckmated(Color kingColor) {
+	Point currentKingPos = (kingColor == WHITE ? getWhiteKingPosition() : getBlackKingPosition());
+
 }
 
 

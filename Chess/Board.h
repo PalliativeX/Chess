@@ -19,11 +19,14 @@ private:
 	bool moveQueen(Point& from, Point& to);
 	bool moveBishop(Point& from, Point& to);
 
-
 	// we move our piece to a chosen square
 	void swapAndDeleteSecond(ChessPiece*& to, ChessPiece*& from);
 
-	
+	// needed for checking whether a square is protected
+	// or a king can go there
+	bool canEnemyPiecesReachSquare(const Point& to, const Color currentColor) const;
+
+
 	bool canMoveInLine(const Point& from, const Point& to) const;
 	bool canMoveDiagonally(const Point& from, const Point& to) const;
 	bool canMoveKing1Square(const Point& from, const Point& to) const; // if it's an enemy piece, we must check whether it is protected
@@ -34,14 +37,21 @@ private:
 
 	const Point getWhiteKingPosition() const;
 	const Point getBlackKingPosition() const;
-	
+
+	bool isKingCheckmated(Color kingColor);
+
 public:
 	Board();
 	bool move(Point& from, Point& to, Turn turn);
 	void display() const;
 
+
 	bool isWhiteKingAttacked = false;
 	bool isBlackKingAttacked = false;
+
+	// a king can't be checkmated if it's not even attacked
+	bool isWhiteKingCheckmated = false;
+	bool isBlackKingCheckmated = false;
 
 	// @todo add saving and loading game, helps in tests
 	void saveGame();
