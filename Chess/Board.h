@@ -1,12 +1,15 @@
 #pragma once
 
 #include "ChessPiece.h"
+#include <vector>
 
 const int BOARD_LENGTH = 8;
 
 class Board {
 private:
 	ChessPiece * board[BOARD_LENGTH][BOARD_LENGTH];
+
+	Point prevMove;
 
 	// separate move methods for each chess piece, 
 	// in each method we also check whether enemy king is under attack
@@ -35,6 +38,9 @@ private:
 	bool canMoveKnight(const Point& from, const Point& to) const;
 	bool canPawnTake(const Point& from, const Point& to) const; // check if a pawn can take either left or right diagonal enemy piece
 
+	bool canBlockDiagonalAttack(const Point& attackerPos, const Color currentColor) const; // by bishop or queen
+	bool canBlockLinearAttack(const Point& attackerPos, const Color currentColor) const; // by rook or queen
+
 	const Point getWhiteKingPosition() const;
 	const Point getBlackKingPosition() const;
 
@@ -52,6 +58,20 @@ public:
 	// a king can't be checkmated if it's not even attacked
 	bool isWhiteKingCheckmated = false;
 	bool isBlackKingCheckmated = false;
+
+	// we return a previous move, necessary for checking
+	// where a piece attacking our king stays
+	const Point& getPrevMove() const {
+		return prevMove;
+	}
+	void setPrevMove(Point move) {
+		prevMove = move;
+	}
+
+	// here we store all possible moves for king in check
+	// later can be extended to all possible move for each piece (useful in GUI)
+	// if any piece makes some of these moves, then their king is not under attack any more
+	std::vector<Point> possibleMoves;
 
 	// @todo add saving and loading game, helps in tests
 	void saveGame();

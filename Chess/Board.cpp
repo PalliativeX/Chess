@@ -63,6 +63,7 @@ Board::Board() {
 }
 
 
+
 // Color == Turn
 bool Board::move(Point& from, Point& to, Turn turn) {
 
@@ -396,7 +397,7 @@ bool Board::canEnemyPiecesReachSquare(const Point& to, const Color currentColor)
 	for (int i = 0; i < BOARD_LENGTH; i++) {
 		for (int j = 0; j < BOARD_LENGTH; j++) {
 			// we check if any enemy piece can move to this square
-			if (!isSquareEmpty(board[i][j]) && board[i][j]->getColor() != currentColor) {
+			if (board[i][j] != nullptr && board[i][j]->getColor() != currentColor) {
 				switch (board[i][j]->getType()) {
 				case PAWN :
 					// add for pawn
@@ -445,9 +446,15 @@ bool Board::canMoveKing1Square(const Point& from, const Point& to) const {
 
 bool Board::attemptKingCastle(const Point& from, const Point& to, const bool hasKingMoved) {
 
+	Color currColor = board[from.x][from.y]->getColor();
+
 	// short castling 4 squares
 	if (from.x == to.x && (to.y - from.y == 2) && !hasKingMoved) {
-		if (canMoveInLine(from, to)) {
+		// here we check if squares between the king and rook are not blocked by enemy pieces
+		if (canMoveInLine(from, to) && 
+			canEnemyPiecesReachSquare(Point(from.x, from.y + 1), currColor) && 
+			canEnemyPiecesReachSquare(Point(from.x, from.y + 2), currColor)) 
+		{
 			swapAndDeleteSecond(board[to.x][to.y], board[from.x][from.y]);
 			swapAndDeleteSecond(board[to.x][to.y - 1], board[from.x][to.y + 1]);
 			return true;
@@ -457,7 +464,12 @@ bool Board::attemptKingCastle(const Point& from, const Point& to, const bool has
 
 	// long castling 5 squares
 	if (from.x == to.x && (from.y - to.y == 2) && !hasKingMoved) {
-		if (canMoveInLine(from, to)) {
+		// same check whether squares are blocked
+		if (canMoveInLine(from, to) &&
+			canEnemyPiecesReachSquare(Point(from.x, from.y - 1), currColor) &&
+			canEnemyPiecesReachSquare(Point(from.x, from.y - 2), currColor) &&
+			canEnemyPiecesReachSquare(Point(from.x, from.y - 3), currColor)) 
+		{
 			swapAndDeleteSecond(board[to.x][to.y], board[from.x][from.y]);
 			swapAndDeleteSecond(board[from.x][to.y + 1], board[to.x][to.y - 2]);
 			return true;
@@ -468,12 +480,85 @@ bool Board::attemptKingCastle(const Point& from, const Point& to, const bool has
 }
 
 
+// there we must check 4 directions
+bool Board::canBlockDiagonalAttack(const Point& attackerPos, const Color currentColor) const {
+
+	Point currentKingPos = (currentColor == WHITE ? getWhiteKingPosition() : getBlackKingPosition());
+
+	
+	for (int i = attackerPos.x - 1; i <= currentKingPos.x; i--) {
+		for (int j = attackerPos.y + 1; j <= currentKingPos.y; j++) {
+			if (canEnemyPiecesReachSquare(Point(i, j), (currentColor == WHITE ? BLACK : WHITE)))
+				return true;
+		}
+	}
+
+
+	return false;
+}
+
+
+// same 4 directions
+bool Board::canBlockLinearAttack(const Point& attackerPos, const Color currentColor) const {
+
+	Point currentKingPos = (currentColor == WHITE ? getWhiteKingPosition() : getBlackKingPosition());
+
+	for (int i = attackerPos.x - 1; i <= currentKingPos.x; i--) {
+		for (int j = attackerPos.y + 1; j <= currentKingPos.y; j++) {
+			if (canEnemyPiecesReachSquare(Point(i, j), (currentColor == WHITE ? BLACK : WHITE)))
+				return true;
+		}
+	}
+
+	return false;
+}
+
+
+
 // @todo, we must check:
 // 1 - whether king can escape, 2 - whether a piece which attacks it can be killed, 3 - whether the line can be protected
 // 1 - can check with abs() or with for loop (too ineffective)
 bool Board::isKingCheckmated(Color kingColor) {
 	Point currentKingPos = (kingColor == WHITE ? getWhiteKingPosition() : getBlackKingPosition());
 
+	bool canKingMove = false;
+
+	for (int i = currentKingPos.x - 1; i <= currentKingPos.x + 1; i++) {
+		for (int j = currentKingPos.y - 1; j <= currentKingPos.y + 1; j++) {
+			// can be optimized, branch prediction every loop iteration
+			if (currentKingPos.x == i && currentKingPos.y == j)
+				continue;
+
+			// we can store possible moves and then just check
+			// whether an attempted move fits 'em
+			if (canMoveKing1Square(currentKingPos, Point(i, j)))
+				return true;
+		}
+	}
+
+	// we check if our pieces can eliminate this piece, attacking our king
+	if (canEnemyPiecesReachSquare(getPrevMove(), (kingColor == WHITE ? BLACK : WHITE))) {
+		return true;
+	}
+
+	
+	ChessPiece* enemyPiece = board[getPrevMove().x][getPrevMove().y];
+    // we check here whether the line can be blocked from enemy piece (rook, queen, bishop)
+	// we skip this check for knight and pawn, cause they don't attack on line so we can't block 'em
+	if (enemyPiece->getType() != KNIGHT && enemyPiece->getType() != PAWN) {
+		if (enemyPiece->getType() == ROOK || enemyPiece->getType() == QUEEN) {
+			if (canBlockLinearAttack(getPrevMove(), kingColor))
+				return true;
+		}
+		else if (enemyPiece->getType() == QUEEN || enemyPiece->getType() == BISHOP) {
+			if (canBlockDiagonalAttack(getPrevMove(), kingColor))
+				return true;
+		}
+	}
+
+
+	(kingColor == WHITE ? isWhiteKingCheckmated = true : isBlackKingCheckmated = true);
+	return false;
 }
 
 
@@ -483,8 +568,10 @@ const Point Board::getWhiteKingPosition() const {
 
 	for (int i = 0; i < BOARD_LENGTH; i++) {
 		for (int j = 0; j < BOARD_LENGTH; j++) {
-			if (board[i][j]->getType() == KING && board[i][j]->getColor() == WHITE)
-				return Point(i, j);
+			if (board[i][j] != nullptr) {
+				if (board[i][j]->getType() == KING && board[i][j]->getColor() == WHITE)
+					return Point(i, j);
+			}
 		}
 	}
 
@@ -495,8 +582,10 @@ const Point Board::getBlackKingPosition() const {
 
 	for (int i = 0; i < BOARD_LENGTH; i++) {
 		for (int j = 0; j < BOARD_LENGTH; j++) {
-			if (board[i][j]->getType() == KING && board[i][j]->getColor() == BLACK)
-				return Point(i, j);
+			if (board[i][j] != nullptr) {
+				if (board[i][j]->getType() == KING && board[i][j]->getColor() == BLACK)
+					return Point(i, j);
+			}
 		}
 	}
 

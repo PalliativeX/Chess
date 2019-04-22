@@ -31,6 +31,7 @@ void play() {
 			// if a move is successful let BLACK move, else iterate through while() once again
 			if (board.move(from, to, WHITE)) {
 				board.display();
+				board.setPrevMove(to);
 				if (board.isBlackKingAttacked) {
 					if (board.isBlackKingCheckmated) {
 						cout << "The black lost, your king is checkmated!" << endl;
@@ -46,6 +47,7 @@ void play() {
 		else {
 			if (board.move(from, to, BLACK)) {
 				board.display(); 
+				board.setPrevMove(to);
 				if (board.isWhiteKingAttacked) {
 					if (board.isBlackKingCheckmated) {
 						cout << "The white lost, your king is checkmated!" << endl;
