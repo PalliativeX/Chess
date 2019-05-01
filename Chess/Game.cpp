@@ -1,6 +1,6 @@
 #include "Board.h"
 #include <iostream>
-
+#include <SFML/Graphics.hpp>
 
 Board newGame() {
 	return Board();
@@ -69,6 +69,8 @@ void play() {
 int main() {
 
 	play();
+
+
 
 	return 0;
 }

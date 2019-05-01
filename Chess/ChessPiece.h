@@ -19,6 +19,9 @@ struct Point {
 	int y;
 	Point(int a, int b) : x(a), y(b) {}
 	Point() {}
+	bool operator== (const Point& rhs) {
+		return (x == rhs.x && y == rhs.y);
+	}
 };
 
 class ChessPiece {

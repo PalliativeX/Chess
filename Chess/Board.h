@@ -5,6 +5,17 @@
 
 const int BOARD_LENGTH = 8;
 
+// consists of 2 points: from and to
+struct Position 
+{
+	Point from;
+	Point to;
+	Position(Point x, Point y) : from(x), to(y) {}
+	bool operator== (const Position& rhs) {
+		return (from == rhs.from && to == rhs.to);
+	}
+};
+
 class Board {
 private:
 	ChessPiece * board[BOARD_LENGTH][BOARD_LENGTH];
@@ -71,7 +82,7 @@ public:
 	// here we store all possible moves for king in check
 	// later can be extended to all possible move for each piece (useful in GUI)
 	// if any piece makes some of these moves, then their king is not under attack any more
-	std::vector<Point> possibleMoves;
+	std::vector<Position> possibleMoves;
 
 	// @todo add saving and loading game, helps in tests
 	void saveGame();
