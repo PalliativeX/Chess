@@ -1,3 +1,5 @@
+#include <SFML/Graphics.hpp>
+
 enum PieceType {
 	PAWN, 
 	KNIGHT,
@@ -17,8 +19,13 @@ enum Color {
 struct Point {
 	int x;
 	int y;
-	Point(int a, int b) : x(a), y(b) {}
-	Point() {}
+	sf::Sprite sprite;
+	Point(int a, int b) : x(a), y(b) {
+
+	}
+	Point() {
+	
+	}
 	bool operator== (const Point& rhs) {
 		return (x == rhs.x && y == rhs.y);
 	}

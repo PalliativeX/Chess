@@ -2,11 +2,13 @@
 
 #include "ChessPiece.h"
 #include <vector>
+#include <algorithm>
+
 
 const int BOARD_LENGTH = 8;
 
 // consists of 2 points: from and to
-struct Position 
+struct Position
 {
 	Point from;
 	Point to;
@@ -18,7 +20,6 @@ struct Position
 
 class Board {
 private:
-	ChessPiece * board[BOARD_LENGTH][BOARD_LENGTH];
 
 	Point prevMove;
 
@@ -58,6 +59,8 @@ private:
 	bool isKingCheckmated(Color kingColor);
 
 public:
+	ChessPiece * board[BOARD_LENGTH][BOARD_LENGTH];
+
 	Board();
 	bool move(Point& from, Point& to, Turn turn);
 	void display() const;
@@ -78,11 +81,6 @@ public:
 	void setPrevMove(Point move) {
 		prevMove = move;
 	}
-
-	// here we store all possible moves for king in check
-	// later can be extended to all possible move for each piece (useful in GUI)
-	// if any piece makes some of these moves, then their king is not under attack any more
-	std::vector<Position> possibleMoves;
 
 	// @todo add saving and loading game, helps in tests
 	void saveGame();
