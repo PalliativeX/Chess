@@ -461,7 +461,7 @@ bool Board::canEnemyPiecesReachSquare(const Point& to, const Color currentColor)
 	return false;
 }
 
-
+// ! seems to be broken
 // @todo - we must check if there is a king nearby
 bool Board::canMoveKing1Square(const Point& from, const Point& to) const {
 	for (int i = from.x - 1; i < from.x + 1; i++) {

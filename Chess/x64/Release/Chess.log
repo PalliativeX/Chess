@@ -1,0 +1,12 @@
+﻿  Board.cpp
+c:\users\vladimir\source\repos\chess\chess\board.cpp(5): error C2169: 'abs': intrinsic function, cannot be defined
+c:\users\vladimir\source\repos\chess\chess\board.cpp(166): error C2264: 'abs': error in function definition or declaration; function not called
+c:\users\vladimir\source\repos\chess\chess\board.cpp(179): error C2264: 'abs': error in function definition or declaration; function not called
+c:\users\vladimir\source\repos\chess\chess\board.cpp(217): error C2264: 'abs': error in function definition or declaration; function not called
+c:\users\vladimir\source\repos\chess\chess\board.cpp(226): error C2264: 'abs': error in function definition or declaration; function not called
+c:\users\vladimir\source\repos\chess\chess\board.cpp(324): error C2264: 'abs': error in function definition or declaration; function not called
+c:\users\vladimir\source\repos\chess\chess\board.cpp(334): error C2264: 'abs': error in function definition or declaration; function not called
+c:\users\vladimir\source\repos\chess\chess\board.cpp(418): error C2264: 'abs': error in function definition or declaration; function not called
+c:\users\vladimir\source\repos\chess\chess\board.cpp(419): error C2264: 'abs': error in function definition or declaration; function not called
+  ChessPiece.h
+  Game.cpp
