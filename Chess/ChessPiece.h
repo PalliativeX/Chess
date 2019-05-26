@@ -3,7 +3,8 @@
 #include <string>
 
 
-enum PieceType {
+enum PieceType 
+{
 	PAWN, 
 	KNIGHT,
 	BISHOP,
@@ -12,14 +13,16 @@ enum PieceType {
 	KING
 };
 
-enum Color {
+enum Color 
+{
 	WHITE,
 	BLACK
 };
 
 #define Turn Color
 
-struct Point {
+struct Point
+{
 	int x;
 	int y;
 	Point(int a, int b) : x(a), y(b) {
@@ -35,7 +38,9 @@ struct Point {
 
 sf::Sprite getNecessarySprite(Color color, PieceType type);
 
-class ChessPiece {
+
+class ChessPiece 
+{
 private:
 	PieceType type;
 	Color color;

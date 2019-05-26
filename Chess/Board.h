@@ -16,7 +16,8 @@ struct Position
 	}
 };
 
-class Board {
+class Board 
+{
 private:
 
 	Point prevMove;
@@ -54,7 +55,6 @@ private:
 	const Point getWhiteKingPosition() const;
 	const Point getBlackKingPosition() const;
 
-	bool isKingCheckmated(Color kingColor);
 
 public:
 	ChessPiece * board[BOARD_LENGTH][BOARD_LENGTH];
@@ -71,6 +71,8 @@ public:
 	bool isWhiteKingCheckmated = false;
 	bool isBlackKingCheckmated = false;
 
+	bool isKingCheckmated(Color kingColor);
+
 	// we return a previous move, necessary for checking
 	// where a piece attacking our king stays
 	const Point& getPrevMove() const {
@@ -80,7 +82,4 @@ public:
 		prevMove = move;
 	}
 
-	// @todo add saving and loading game, helps in tests
-	void saveGame();
-	void loadGame();
 };

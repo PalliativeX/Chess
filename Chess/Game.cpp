@@ -33,13 +33,12 @@ void play() {
 
 	Board board;
 	
-	// creating the main window and a board for it
+	// creating the main window
 	sf::RenderWindow mainWindow(sf::VideoMode(640, 640), "Chess", sf::Style::Close);
 
+	// creating a game board sprite
 	sf::Texture boardTexture;
-	if (!boardTexture.loadFromFile("C:/Users/Vladimir/source/repos/Chess/Chess/Images/chess_board.jpg")) {
-		std::cout << "Can't load the image!";
-	}
+	boardTexture.loadFromFile("C:/Users/Vladimir/source/repos/Chess/Chess/Images/chess_board.jpg");
 	sf::Sprite boardSprite;
 	boardSprite.setTexture(boardTexture);
 
@@ -87,7 +86,7 @@ void play() {
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
 				if (board.board[j][i] != nullptr) {
-					board.board[j][i]->getSprite().setPosition(i * 80 + 3, j * 80 + 3);
+					board.board[j][i]->getSprite().setPosition((float)i * 80 + 5, (float) j * 80 + 3);
 					mainWindow.draw(board.board[j][i]->getSprite());
 				}
 			}
@@ -96,6 +95,8 @@ void play() {
 	}
 }
 
+// we pass coords in which we want to move our piece, the turn is changed inside the move method
+// if the move was successful
 bool move(Turn& turn, Board& board, Point from, Point to) {
 
 	if (turn == WHITE) {
@@ -103,10 +104,11 @@ bool move(Turn& turn, Board& board, Point from, Point to) {
 		if (board.move(from, to, WHITE)) {
 			board.setPrevMove(to);
 			if (board.isBlackKingAttacked) {
-				if (board.isBlackKingCheckmated) {
+				if (board.isKingCheckmated(BLACK)) {
 					std::cout << "The black lost, your king is checkmated!" << std::endl;
 				}
-				std::cout << "Black king is under attack!" << std::endl;
+				else
+					std::cout << "Black king is under attack!" << std::endl;
 			}
 			turn = BLACK;
 			return true;
@@ -120,10 +122,11 @@ bool move(Turn& turn, Board& board, Point from, Point to) {
 		if (board.move(from, to, BLACK)) {
 			board.setPrevMove(to);
 			if (board.isWhiteKingAttacked) {
-				if (board.isWhiteKingCheckmated) {
+				if (board.isKingCheckmated(WHITE)) {
 					std::cout << "The white lost, your king is checkmated!" << std::endl;
 				}
-				std::cout << "White king is under attack!" << std::endl;
+				else
+					std::cout << "White king is under attack!" << std::endl;
 			}
 			turn = WHITE;
 			return true;
