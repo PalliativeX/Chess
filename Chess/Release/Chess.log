@@ -1,6 +1,0 @@
-﻿  Board.cpp
-c:\users\vladimir\source\repos\chess\chess\chesspiece.h(1): fatal error C1083: Cannot open include file: 'SFML/Graphics.hpp': No such file or directory
-  ChessPiece.h
-c:\users\vladimir\source\repos\chess\chess\chesspiece.h(1): fatal error C1083: Cannot open include file: 'SFML/Graphics.hpp': No such file or directory
-  Game.cpp
-c:\users\vladimir\source\repos\chess\chess\chesspiece.h(1): fatal error C1083: Cannot open include file: 'SFML/Graphics.hpp': No such file or directory

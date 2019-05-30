@@ -36,6 +36,8 @@ struct Point
 	}
 };
 
+// in this method we load and store 12 textures and then create sprites
+// for our chess pieces out of them
 sf::Sprite getNecessarySprite(Color color, PieceType type);
 
 

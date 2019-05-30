@@ -16,6 +16,7 @@ struct Position
 	}
 };
 
+
 class Board 
 {
 private:
@@ -23,8 +24,6 @@ private:
 	Point prevMove;
 
 	// separate move methods for each chess piece, 
-	// in each method we also check whether enemy king is under attack
-	// if yes, we set isWhite(Black)KingAttacked to true
 	bool moveKnight(Point& from, Point& to);
 	void attemptToTransformPawn(const Point& to);
 	bool movePawn(Point& from, Point& to);
@@ -52,9 +51,6 @@ private:
 	bool canBlockDiagonalAttack(const Point& attackerPos, const Color currentColor) const; // by bishop or queen
 	bool canBlockLinearAttack(const Point& attackerPos, const Color currentColor) const; // by rook or queen
 
-	const Point getWhiteKingPosition() const;
-	const Point getBlackKingPosition() const;
-
 
 public:
 	ChessPiece * board[BOARD_LENGTH][BOARD_LENGTH];
@@ -72,6 +68,9 @@ public:
 	bool isBlackKingCheckmated = false;
 
 	bool isKingCheckmated(Color kingColor);
+
+	const Point getWhiteKingPosition() const;
+	const Point getBlackKingPosition() const;
 
 	// we return a previous move, necessary for checking
 	// where a piece attacking our king stays
