@@ -1,21 +1,11 @@
+#pragma once
+
 #include "ChessPiece.h"
 #include <vector>
 #include <algorithm>
 
 
 const int BOARD_LENGTH = 8;
-
-// consists of 2 points: from and to
-struct Position
-{
-	Point from;
-	Point to;
-	Position(Point x, Point y) : from(x), to(y) {}
-	bool operator== (const Position& rhs) {
-		return (from == rhs.from && to == rhs.to);
-	}
-};
-
 
 class Board 
 {
@@ -25,11 +15,12 @@ private:
 
 	// separate move methods for each chess piece, 
 	bool moveKnight(Point& from, Point& to);
-	void attemptToTransformPawn(const Point& to);
-	bool movePawn(Point& from, Point& to);
-	bool moveRook(Point& from, Point& to);
-	bool moveKing(Point& from, Point& to);
-	bool moveQueen(Point& from, Point& to);
+	void displayPawnTransformWindow(const Point& to);
+	void attemptToTransformPawn(const Point& newPos);
+	bool movePawn  (Point& from, Point& to);
+	bool moveRook  (Point& from, Point& to);
+	bool moveKing  (Point& from, Point& to);
+	bool moveQueen (Point& from, Point& to);
 	bool moveBishop(Point& from, Point& to);
 
 	// we move our piece to a chosen square
@@ -81,4 +72,5 @@ public:
 		prevMove = move;
 	}
 
+	int mainWindowXpos, mainWindowYpos;
 };

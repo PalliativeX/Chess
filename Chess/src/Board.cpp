@@ -2,6 +2,7 @@
 #include <iostream>
 #include <algorithm>
 
+
 inline static int absInt(int x) {
 	return (x >= 0 ? x : -x);
 }
@@ -20,6 +21,7 @@ bool isSquareEmpty(const ChessPiece** p) {
 }
 
 
+// setting up the board and pieces
 Board::Board() {
 	for (int i = 0; i < BOARD_LENGTH; i++) {
 		for (int j = 0; j < BOARD_LENGTH; j++) {
@@ -29,53 +31,60 @@ Board::Board() {
 
 	// initializing 8 black pawns
 	for (int j = 0; j < BOARD_LENGTH; j++) {
-		board[1][j] = new ChessPiece(PAWN, BLACK);
+		board[1][j] = new ChessPiece(PAWN, BLACK, 1);
 	}
 	//initializing 8 white pawns
 	for (int j = 0; j < BOARD_LENGTH; j++) {
-		board[6][j] = new ChessPiece(PAWN, WHITE);
+		board[6][j] = new ChessPiece(PAWN, WHITE, 1);
 	}
 
 	// 4 rooks
-	board[0][0] = new ChessPiece(ROOK, BLACK);
-	board[0][7] = new ChessPiece(ROOK, BLACK);
-	board[7][0] = new ChessPiece(ROOK, WHITE);
-	board[7][7] = new ChessPiece(ROOK, WHITE);
+	board[0][0] = new ChessPiece(ROOK, BLACK, 5.f);
+	board[0][7] = new ChessPiece(ROOK, BLACK, 5.f);
+	board[7][0] = new ChessPiece(ROOK, WHITE, 5.f);
+	board[7][7] = new ChessPiece(ROOK, WHITE, 5.f);
 
 	// 4 knights
-	board[0][1] = new ChessPiece(KNIGHT, BLACK);
-	board[0][6] = new ChessPiece(KNIGHT, BLACK);
-	board[7][1] = new ChessPiece(KNIGHT, WHITE);
-	board[7][6] = new ChessPiece(KNIGHT, WHITE);
+	board[0][1] = new ChessPiece(KNIGHT, BLACK, 3.f);
+	board[0][6] = new ChessPiece(KNIGHT, BLACK, 3.f);
+	board[7][1] = new ChessPiece(KNIGHT, WHITE, 3.f);
+	board[7][6] = new ChessPiece(KNIGHT, WHITE, 3.f);
 
 	// 4 bishops
-	board[0][2] = new ChessPiece(BISHOP, BLACK);
-	board[0][5] = new ChessPiece(BISHOP, BLACK);
-	board[7][2] = new ChessPiece(BISHOP, WHITE);
-	board[7][5] = new ChessPiece(BISHOP, WHITE);
+	board[0][2] = new ChessPiece(BISHOP, BLACK, 3.2f);
+	board[0][5] = new ChessPiece(BISHOP, BLACK, 3.2f);
+	board[7][2] = new ChessPiece(BISHOP, WHITE, 3.2f);
+	board[7][5] = new ChessPiece(BISHOP, WHITE, 3.2f);
 
 	// 2 queens
-	board[0][3] = new ChessPiece(QUEEN, BLACK);
-	board[7][3] = new ChessPiece(QUEEN, WHITE);
+	board[0][3] = new ChessPiece(QUEEN, BLACK, 8.f);
+	board[7][3] = new ChessPiece(QUEEN, WHITE, 8.f);
 
 	// 2 kings
-	board[0][4] = new ChessPiece(KING, BLACK);
-	board[7][4] = new ChessPiece(KING, WHITE);
+	board[0][4] = new ChessPiece(KING, BLACK, 100);
+	board[7][4] = new ChessPiece(KING, WHITE, 100);
 }
 
+
+bool isMoveValid(Board& board, Point& from, Point& to, Turn& turn) {
+	// 3 basic checks for validity of move:
+	if (board.board[from.x][from.y] == nullptr)
+		return false;
+
+	if (board.board[from.x][from.y]->getColor() != turn)
+		return false;
+
+	if (board.board[to.x][to.y] != nullptr && board.board[to.x][to.y]->getColor() == board.board[from.x][from.y]->getColor())
+		return false;
+
+	return true;
+}
 
 
 // Color == Turn
 bool Board::move(Point& from, Point& to, Turn turn) {
 
-	// 3 basic checks for validity of move:
-	if (board[from.x][from.y] == nullptr)
-		return false;
-
-	if (board[from.x][from.y]->getColor() != turn)
-		return false;
-
-	if (board[to.x][to.y] != nullptr && board[to.x][to.y]->getColor() == board[from.x][from.y]->getColor())
+	if (!isMoveValid(*this, from, to, turn))
 		return false;
 
 
@@ -116,10 +125,8 @@ bool Board::move(Point& from, Point& to, Turn turn) {
 
 	// here we check whether a move exposes a king, if so we return to the previous state
 	if (canEnemyPiecesReachSquare((turn == WHITE ? getWhiteKingPosition() : getBlackKingPosition()), turn)) {
-		isMoveSuccessful = false;
 		*this = tempBoard;
-
-		return isMoveSuccessful;
+		return false;
 	}
 
 	// here, if a king is attacked, we check whether our move changed it,
@@ -147,22 +154,64 @@ bool Board::move(Point& from, Point& to, Turn turn) {
 	return isMoveSuccessful;
 }
 
-void Board::attemptToTransformPawn(const Point& to) {
-	// here we check if a pawn reached the end, then
-	// we can transform it into another piece
-	if (to.x == 0 || to.x == 7) {
-		std::cout << " Choose a piece you want your pawn to become: 0 - PAWN, 1 - KNIGHT, 2 - BISHOP, 3 - ROOK, 4 - QUEEN" << std::endl;
-		int pieceType;
-		while (true) {
-			std::cin >> pieceType;
-			if (pieceType >= 0 && pieceType <= 4) {
-				board[to.x][to.y] = new ChessPiece(static_cast<PieceType>(pieceType), board[to.x][to.y]->getColor());
-				break;
-			}
-		}
+
+void Board::displayPawnTransformWindow(const Point& newPos)
+{
+	using namespace sf;
+
+	RenderWindow transformWindow(VideoMode(80, 320), "", Style::None);
+	transformWindow.setPosition(Vector2i(mainWindowXpos + newPos.y * 80 + 8, mainWindowYpos + newPos.x * 80 + 40));
+
+	static Texture transfWindowTexture;
+	static Sprite transfWindowSprite;
+	static bool textureInitialized = false;
+	if (!textureInitialized) {
+		if (board[newPos.x][newPos.y]->getColor() == WHITE)
+			transfWindowTexture.loadFromFile("C:/Users/Vladimir/source/repos/Chess/Chess/src/images/transformWindowWhite.png");
+		else
+			transfWindowTexture.loadFromFile("C:/Users/Vladimir/source/repos/Chess/Chess/src/images/transformWindowBlack.png");
+		transfWindowSprite.setTexture(transfWindowTexture);
+		textureInitialized = true;
 	}
 
+	while (transformWindow.isOpen()) {
+
+		sf::Event event;
+
+		while (transformWindow.pollEvent(event))
+		{
+			if (event.type == sf::Event::MouseButtonPressed && event.key.code == sf::Mouse::Left) {
+				int xpos = event.mouseButton.x;
+				int ypos = event.mouseButton.y;
+
+				// creating a new chess piece depending on where we clicked
+				if (ypos < 80)
+					board[newPos.x][newPos.y] = new ChessPiece(QUEEN, board[newPos.x][newPos.y]->getColor(), 9);
+				else if (ypos < 160)
+					board[newPos.x][newPos.y] = new ChessPiece(KNIGHT, board[newPos.x][newPos.y]->getColor(), 3);
+				else if (ypos < 240)
+					board[newPos.x][newPos.y] = new ChessPiece(ROOK, board[newPos.x][newPos.y]->getColor(), 4);
+				else
+					board[newPos.x][newPos.y] = new ChessPiece(BISHOP, board[newPos.x][newPos.y]->getColor(), 3);
+
+				transformWindow.close();
+			}
+		}
+		transformWindow.clear();
+		transformWindow.draw(transfWindowSprite);
+		transformWindow.display();
+	}
 }
+
+
+void Board::attemptToTransformPawn(const Point& newPos) {
+	// here we check if a pawn reached the end, then
+	// we can transform it into another piece
+	if (newPos.x == 0 || newPos.x == 7) {
+		displayPawnTransformWindow(newPos);
+	}
+}
+
 
 
 bool Board::movePawn(Point& from, Point& to) {
@@ -304,11 +353,11 @@ bool Board::moveKing(Point& from, Point& to) {
 bool Board::moveQueen(Point& from, Point& to) {
 
 	if (from.x == to.x && from.y != to.y ||
-		from.x != to.x && from.y == to.y) 
+		from.x != to.x && from.y == to.y)
 	{
 		return moveRook(from, to);
 	}
-	else if (absInt(from.x - to.x) == absInt(from.y - to.y)) 
+	else if (absInt(from.x - to.x) == absInt(from.y - to.y))
 	{
 		return moveBishop(from, to);
 	}
@@ -678,17 +727,17 @@ void Board::display() const {
 
 				switch (p->getType())
 				{
-				case KING: (c == WHITE) ? cout << " K " : cout << " k ";
+				case KING:   (c == WHITE) ? cout << " K " : cout << " k ";
 					break;
-				case QUEEN: (c == WHITE) ? cout << " Q " : cout << " q ";
+				case QUEEN:  (c == WHITE) ? cout << " Q " : cout << " q ";
 					break;
-				case BISHOP:(c == WHITE) ? cout << " B " : cout << " b ";
+				case BISHOP: (c == WHITE) ? cout << " B " : cout << " b ";
 					break;
-				case KNIGHT:(c == WHITE) ? cout << " H " : cout << " h ";
+				case KNIGHT: (c == WHITE) ? cout << " H " : cout << " h ";
 					break;
-				case ROOK: (c == WHITE) ? cout << " R " : cout << " r ";
+				case ROOK:   (c == WHITE) ? cout << " R " : cout << " r ";
 					break;
-				case PAWN: (c == WHITE) ? cout << " P " : cout << " p ";
+				case PAWN:   (c == WHITE) ? cout << " P " : cout << " p ";
 					break;
 				default: cout << " . ";
 					break;
@@ -701,4 +750,4 @@ void Board::display() const {
 		}
 		cout << endl;
 	}
-} 
+}
