@@ -7,7 +7,7 @@
 
 const int BOARD_LENGTH = 8;
 
-class Board 
+class Board
 {
 private:
 
@@ -17,10 +17,10 @@ private:
 	bool moveKnight(Point& from, Point& to);
 	void displayPawnTransformWindow(const Point& to);
 	void attemptToTransformPawn(const Point& newPos);
-	bool movePawn  (Point& from, Point& to);
-	bool moveRook  (Point& from, Point& to);
-	bool moveKing  (Point& from, Point& to);
-	bool moveQueen (Point& from, Point& to);
+	bool movePawn(Point& from, Point& to);
+	bool moveRook(Point& from, Point& to);
+	bool moveKing(Point& from, Point& to);
+	bool moveQueen(Point& from, Point& to);
 	bool moveBishop(Point& from, Point& to);
 
 	// we move our piece to a chosen square
@@ -44,7 +44,7 @@ private:
 
 
 public:
-	ChessPiece * board[BOARD_LENGTH][BOARD_LENGTH];
+	ChessPiece* board[BOARD_LENGTH][BOARD_LENGTH];
 
 	Board();
 	bool move(Point& from, Point& to, Turn turn);

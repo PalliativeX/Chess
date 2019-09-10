@@ -137,14 +137,14 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Board.cpp" />
-    <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\Program.cpp" />
+    <ClCompile Include="src\Game.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

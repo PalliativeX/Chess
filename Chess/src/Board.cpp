@@ -167,9 +167,9 @@ void Board::displayPawnTransformWindow(const Point& newPos)
 	static bool textureInitialized = false;
 	if (!textureInitialized) {
 		if (board[newPos.x][newPos.y]->getColor() == WHITE)
-			transfWindowTexture.loadFromFile("C:/Users/Vladimir/source/repos/Chess/Chess/src/images/transformWindowWhite.png");
+			transfWindowTexture.loadFromFile("src/images/transformWindowWhite.png");
 		else
-			transfWindowTexture.loadFromFile("C:/Users/Vladimir/source/repos/Chess/Chess/src/images/transformWindowBlack.png");
+			transfWindowTexture.loadFromFile("src/images/transformWindowBlack.png");
 		transfWindowSprite.setTexture(transfWindowTexture);
 		textureInitialized = true;
 	}

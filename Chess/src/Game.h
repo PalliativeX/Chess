@@ -9,7 +9,8 @@ enum GameState
 	GAME_ON,
 	WHITE_WIN,
 	BLACK_WIN,
-	DRAW
+	DRAW,
+	GAME_QUIT
 };
 
 class Game
@@ -21,9 +22,16 @@ public:
 	void play();
 
 private:
-	GameState state;
-	bool move(Turn& turn, Board& board, Point from, Point to);
+	void move(Point from, Point to);
 
 	void openVictoryWindow(Color winner);
 	void createGameMenu();
+	void render(sf::RenderWindow* mainWindow);
+	void processInput(sf::RenderWindow& mainWindow);
+
+private:
+	// game state
+	Board board;
+	GameState gameState;
+	Turn turn;
 };
